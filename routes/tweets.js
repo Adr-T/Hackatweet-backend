@@ -1,5 +1,26 @@
 var express = require('express');
 var router = express.Router();
+require("../models/connection");
+
+const Tweet = require("../models/tweets");
+const { checkBody } = require("../modules/checkBody");
+
+router.post("/postTweet", (req,res) => {
+    if (!checkBody(req.body, ["username", "password"])) {
+        res.json({ result: false, error: "Missing or empty fields" });
+        return;
+    }
+
+    const newTweet = new Tweet({
+        username: req.body.username,
+        tweetContent: req.body.tweetContent,
+        publicationDate: moment(Date.now).format('YYYY-MM-DD HH:mm'),
+    })
+    
+    newTweet.save().then(data => {
+        res.json({tweet: data});
+    });
+});
 
 /* GET home page. */
 // router.get('/', function(req, res, next) {
