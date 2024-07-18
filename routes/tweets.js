@@ -9,7 +9,7 @@ const { checkBody } = require("../modules/checkBody");
 
 router.post("/newTweet", (req, res) => {
     if (!checkBody(req.body, ["tweetContent"])) {
-        res.json({ result: false, error: "Missing or empty fields" });
+        res.json({ result: false, error: "Type at least something you moron !" });
         return;
     }
 
@@ -49,13 +49,20 @@ router.get("/getAllTweet", (req, res) => {
 });
 
 router.get("/delTweet", (req, res) => {
-    Tweet.deleteOne({_id: req.body._id}).then((data) => {
-        if (data.deletedCount > 0) {
-            Tweet.find().then((data) => {
-                res.json({ result: true,  data });
+    Tweet.findOne({_id:req.body._id}).populate('creator').then(data =>{
+        if (data.creator.token === req.body.token){
+
+            Tweet.deleteOne({_id: req.body._id}).then((data) => {
+                if (data.deletedCount > 0) {
+                    Tweet.find().then((data) => {
+                        res.json({ result: true,  data });
+                    });
+                } else {
+                    res.json({ result: false, error: "You gonna get cancelled !" });
+                }
             });
         } else {
-            res.json({ result: false, error: "You gonna get cancelled" });
+            res.json({result: false, error: "you're trying too hard..."})
         }
     });
 });
